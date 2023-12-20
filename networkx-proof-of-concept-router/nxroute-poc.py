@@ -327,6 +327,8 @@ class NxRouter:
                 # Mapping from net to (a) source pin to node mapping,
                 # (b) list of sink nodes
                 self.net2pin2node = {}
+                
+                G_getNodeFromSitePin = self.g.getNodeFromSitePin # makes faster
 
                 s = self.netlist.strList
                 for net in self.netlist.physNets:
@@ -343,7 +345,7 @@ class NxRouter:
                                 sourcePin2node = {}
                                 for sp in self.extractSitePins(net.sources):
                                         siteName,sinkName = s[sp.site],s[sp.pin]
-                                        sourceNode = self.G.getNodeFromSitePin(siteName, sinkName)
+                                        sourceNode = G_getNodeFromSitePin(siteName, sinkName)
                                         if sourceNode is None:
                                                 continue
                                         sourcePin2node[siteName,sinkName] = sourceNode
@@ -352,7 +354,7 @@ class NxRouter:
                                 sinkNodes = []
                                 for sp in sinkPins:
                                         siteName,sinkName = s[sp.site],s[sp.pin]
-                                        sinkNode = self.G.getNodeFromSitePin(siteName, sinkName)
+                                        sinkNode = G_getNodeFromSitePin(siteName, sinkName)
                                         if sinkNode is None:
                                                 continue
                                         if not sourcePin2node:
@@ -386,7 +388,7 @@ class NxRouter:
                                 # be used by other nets (otherwise Vivado reports a site pin conflict)
                                 for sp in self.extractSitePins(net.sources) + sinkPins:
                                         siteName,sinkName = s[sp.site],s[sp.pin]
-                                        blockedNode = self.G.getNodeFromSitePin(siteName, sinkName)
+                                        blockedNode = G_getNodeFromSitePin(siteName, sinkName)
                                         if blockedNode is not None:
                                                 self.G.remove_node(blockedNode)
                 tend = time.time()
@@ -420,6 +422,9 @@ class NxRouter:
                                         print('Unable to route sink pin ' + str(nodes[sinkNode]['sp']) + ' on net ' + s[netName])
                                         continue
                                 numHiddenEdges = len(hiddenEdges)
+                                
+                                # Keep track of all used edges
+                                used_edges = set()
                                 for u,v in zip(path[:-1],path[1:]):
                                         # Key the next node of the path with the net name
                                         nodes[u].setdefault(netName, set()).add(v)
