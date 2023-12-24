@@ -328,7 +328,7 @@ class NxRouter:
                 # (b) list of sink nodes
                 self.net2pin2node = {}
                 
-                G_getNodeFromSitePin = self.g.getNodeFromSitePin # makes faster
+                G_getNodeFromSitePin = self.g.getNodeFromSitePin # makes faster <3 V
 
                 s = self.netlist.strList
                 for net in self.netlist.physNets:
@@ -423,8 +423,6 @@ class NxRouter:
                                         continue
                                 numHiddenEdges = len(hiddenEdges)
                                 
-                                # Keep track of all used edges
-                                used_edges = set()
                                 for u,v in zip(path[:-1],path[1:]):
                                         # Key the next node of the path with the net name
                                         nodes[u].setdefault(netName, set()).add(v)
